@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: elderly-meal-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: elderly_meal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: elderly-meal-backend
+    restart: always
+    ports:
+      - "6847:6847"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=6847
+      - MONGO_URI=mongodb://mongodb:27017/elderly_meal
+      - JWT_SECRET=elderly-meal-service-secret-key-2024
+      - MONTHLY_SUBSIDY_QUOTA=100000
+    command: >
+      sh -c "
+        echo '等待 MongoDB 启动...' &&
+        sleep 5 &&
+        node dist/index.js
+      "
+
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: elderly-meal-seed
+    depends_on:
+      - mongodb
+      - backend
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/elderly_meal
+    command: >
+      sh -c "
+        echo '等待 MongoDB 和后端启动...' &&
+        sleep 8 &&
+        echo '开始初始化数据...' &&
+        node dist/seed/index.js &&
+        echo '数据初始化完成！'
+      "
+    restart: "no"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: elderly-meal-frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
