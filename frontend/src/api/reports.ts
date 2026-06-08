@@ -1,4 +1,6 @@
 import request from "@/utils/request";
+import axios from "axios";
+import { useUserStore } from "@/stores/user";
 
 export type ReportType = "daily" | "monthly" | "quarterly";
 
@@ -85,10 +87,37 @@ export function getReportList(type: ReportType, page = 1, pageSize = 20) {
   });
 }
 
-export function exportReportCSV(type: ReportType, period: string) {
-  window.open(`/api/export/${type}/${period}/csv`, "_blank");
+function downloadFile(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
-export function exportReportHTML(type: ReportType, period: string) {
-  window.open(`/api/export/${type}/${period}/html`, "_blank");
+export async function exportReportCSV(type: ReportType, period: string) {
+  const userStore = useUserStore();
+  const response = await axios.get(`/api/export/${type}/${period}/csv`, {
+    headers: {
+      Authorization: `Bearer ${userStore.token}`,
+    },
+    responseType: "blob",
+  });
+  const filename = `报表_${period}.csv`;
+  downloadFile(response.data, filename);
+}
+
+export async function exportReportHTML(type: ReportType, period: string) {
+  const userStore = useUserStore();
+  const response = await axios.get(`/api/export/${type}/${period}/html`, {
+    headers: {
+      Authorization: `Bearer ${userStore.token}`,
+    },
+    responseType: "blob",
+  });
+  const url = URL.createObjectURL(response.data);
+  window.open(url, "_blank");
 }

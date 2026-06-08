@@ -157,7 +157,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import {
   FileSearchOutlined,
@@ -281,24 +281,25 @@ async function handleConfirm() {
   }
 }
 
-async function handleSubmit() {
+function handleSubmit() {
   if (!currentSubmission.value) return
   
-  try {
-    await message.confirm({
-      title: '确认上报',
-      content: '确认正式上报此数据吗？上报后无法修改。',
-      okText: '确认上报',
-      cancelText: '取消',
-    })
-
-    const data = await submitSubmission(currentSubmission.value._id)
-    currentSubmission.value = data
-    message.success('上报成功')
-    loadHistory()
-  } catch (error: any) {
-    message.error(error.message || '上报失败')
-  }
+  Modal.confirm({
+    title: '确认上报',
+    content: '确认正式上报此数据吗？上报后无法修改。',
+    okText: '确认上报',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const data = await submitSubmission(currentSubmission.value!._id)
+        currentSubmission.value = data
+        message.success('上报成功')
+        loadHistory()
+      } catch (error: any) {
+        message.error(error.message || '上报失败')
+      }
+    },
+  })
 }
 
 function viewSubmission(record: SubmissionRecord) {

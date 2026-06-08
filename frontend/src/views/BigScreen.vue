@@ -598,6 +598,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-height: 0;
 }
 
 .panel-column.left,
@@ -605,11 +606,18 @@ onUnmounted(() => {
   width: 28%;
 }
 
+.panel-column.left .panel,
+.panel-column.right .panel {
+  flex: 1;
+  min-height: 0;
+}
+
 .panel-column.center {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-height: 0;
 }
 
 .panel {
