@@ -55,7 +55,43 @@ const routes: RouteRecordRaw[] = [
           roles: ["admin", "worker"],
         },
       },
+      {
+        path: "reports",
+        name: "Reports",
+        component: () => import("@/views/Reports.vue"),
+        meta: {
+          title: "报表中心",
+          icon: "BarChartOutlined",
+          roles: ["admin", "worker"],
+        },
+      },
+      {
+        path: "submissions",
+        name: "Submissions",
+        component: () => import("@/views/Submissions.vue"),
+        meta: {
+          title: "数据上报",
+          icon: "UploadOutlined",
+          roles: ["admin"],
+        },
+      },
+      {
+        path: "ranking",
+        name: "Ranking",
+        component: () => import("@/views/Ranking.vue"),
+        meta: {
+          title: "助餐点排名",
+          icon: "TrophyOutlined",
+          roles: ["admin", "worker"],
+        },
+      },
     ],
+  },
+  {
+    path: "/bigscreen",
+    name: "BigScreen",
+    component: () => import("@/views/BigScreen.vue"),
+    meta: { title: "数据大屏", requiresAuth: true },
   },
 ];
 
